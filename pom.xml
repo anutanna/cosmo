@@ -114,11 +114,11 @@
 
 			<!-- database drivers -->
 			<dependency>
-				<groupId>org.mariadb.jdbc</groupId>
-				<artifactId>mariadb-java-client</artifactId>
-				<version>${mariadb.version}</version>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+				<version>8.0.33</version>
 			</dependency>
-			
+
 			<dependency>
 			    <groupId>dev.atchison.mariaDB4j</groupId>
 			    <artifactId>mariaDB4j</artifactId>

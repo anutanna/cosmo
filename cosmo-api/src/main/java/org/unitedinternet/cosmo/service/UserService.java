@@ -17,6 +17,10 @@ package org.unitedinternet.cosmo.service;
 
 import java.util.Set;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DataRetrievalFailureException;
+
+
 import org.unitedinternet.cosmo.model.User;
 
 /**
@@ -58,7 +62,7 @@ public interface UserService extends Service {
     public User createUser(User user);
 
     /**
-     * Creates a user account in the repository as per {@link #createUser(User)}. Sends the {@link #EVENT_CREATE_USER}
+     * Creates a user account in the repository as per {@link #createUser(User)}.
      * event to each provided listener.
      *
      * @param user

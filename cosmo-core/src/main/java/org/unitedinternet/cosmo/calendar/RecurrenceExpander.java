@@ -82,29 +82,35 @@ public class RecurrenceExpander {
      *         recurring component.
      */
     public Date[] calculateRecurrenceRange(Calendar calendar) {
-        try{
+        try {
             List<VEvent> vevents = calendar.getComponents().getComponents(Component.VEVENT);
-            
-            List<Component> exceptions = new ArrayList<Component>();
-            Component masterComp = null;
-            
-            // get list of exceptions (VEVENT with RECURRENCEID)
-            for (Iterator<VEvent> i = vevents.iterator(); i.hasNext();) {
-                VEvent event = i.next();
-                if (event.getRecurrenceId() != null) {
-                    exceptions.add(event);
-                }
-                else {
-                    masterComp = event;
-                }
-                
-            }
-            
+            List<Component> exceptions = getExceptions(vevents);
+            Component masterComp = getMasterComponent(vevents);
+
             return calculateRecurrenceRange(masterComp, exceptions);
-        } catch (Exception e){
+        } catch (Exception e) {
             LOG.error("ERROR in calendar: " + calendar, e);
             throw e;
         }
+    }
+
+    private List<Component> getExceptions(List<VEvent> vevents) {
+        List<Component> exceptions = new ArrayList<>();
+        for (VEvent event : vevents) {
+            if (event.getRecurrenceId() != null) {
+                exceptions.add(event);
+            }
+        }
+        return exceptions;
+    }
+
+    private Component getMasterComponent(List<VEvent> vevents) {
+        for (VEvent event : vevents) {
+            if (event.getRecurrenceId() == null) {
+                return event;
+            }
+        }
+        return null;
     }
 
     /**
