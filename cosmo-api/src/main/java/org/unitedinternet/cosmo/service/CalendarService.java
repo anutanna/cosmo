@@ -28,7 +28,7 @@ import org.unitedinternet.cosmo.model.User;
  *
  */
 public interface CalendarService extends Service {
-    
+
     /**
      * Find calendar events by time range.
      * 
