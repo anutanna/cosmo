@@ -48,83 +48,82 @@ public class CaldavOutputFilter implements DavConstants, CaldavConstants, ICalen
      * @return output filter.
      * @throws CosmoDavException - if something is wrong this exception is thrown.
      */
-    public static OutputFilter createFromXml(Element cdata)
-        throws CosmoDavException {
+    public static OutputFilter createFromXml(Element cdata) throws CosmoDavException {
+        validateContentType(cdata);
+        validateVersion(cdata);
+
         OutputFilter result = null;
         Period expand = null;
         Period limit = null;
         Period limitfb = null;
 
-        String contentType =
-            DomUtil.getAttribute(cdata, ATTR_CALDAV_CONTENT_TYPE,
-                                 NAMESPACE_CALDAV);
-        if (contentType != null && ! contentType.equals(ICALENDAR_MEDIA_TYPE)) {
+        for (ElementIterator iter = DomUtil.getChildren(cdata); iter.hasNext();) {
+            Element child = iter.nextElement();
+            result = handleChildElement(result, child);
+            expand = updateExpandPeriod(expand, child);
+            limit = updateLimitRecurrenceSet(limit, child);
+            limitfb = updateLimitFreebusySet(limitfb, child);
+        }
+
+        // You may want to handle expand, limit, and limitfb here or return them as part of the result
+        return result;
+    }
+
+    private static void validateContentType(Element cdata) throws UnsupportedCalendarDataException {
+        String contentType = DomUtil.getAttribute(cdata, ATTR_CALDAV_CONTENT_TYPE, NAMESPACE_CALDAV);
+        if (contentType != null && !contentType.equals(ICALENDAR_MEDIA_TYPE)) {
             throw new UnsupportedCalendarDataException(contentType);
         }
-        String version =
-            DomUtil.getAttribute(cdata, ATTR_CALDAV_CONTENT_TYPE,
-                                 NAMESPACE_CALDAV);
-        if (version != null && ! version.equals(ICALENDAR_VERSION)) {
-                throw new UnsupportedCalendarDataException();
+    }
+
+    private static void validateVersion(Element cdata) throws UnsupportedCalendarDataException {
+        String version = DomUtil.getAttribute(cdata, ATTR_CALDAV_CONTENT_TYPE, NAMESPACE_CALDAV);
+        if (version != null && !version.equals(ICALENDAR_VERSION)) {
+            throw new UnsupportedCalendarDataException();
         }
+    }
 
-        // Look at each child element of calendar-data
-        for (ElementIterator iter = DomUtil.getChildren(cdata);
-             iter.hasNext();) {
-
-            Element child = iter.nextElement();
-            if (ELEMENT_CALDAV_COMP.equals(child.getLocalName())) {
-
-                // At the top-level of calendar-data there should only be one
-                // <comp> element as VCALENDAR components are the only top-level
-                // components allowed in iCalendar data
-                if (result != null) {
-                    return null;
-                }
-
-                // Get required name attribute and verify it is VCALENDAR
-                String name = 
-                    DomUtil.getAttribute(child, ATTR_CALDAV_NAME, null);
-                if (name == null || !Calendar.VCALENDAR.equals(name)) {
-                    return null;
-                }
-
-                // Now parse filter item
-                result = parseCalendarDataComp(child);
-
-            } else if (ELEMENT_CALDAV_EXPAND.equals(child.getLocalName())) {
-                expand = parsePeriod(child, true);
-            } else if (ELEMENT_CALDAV_LIMIT_RECURRENCE_SET.
-                       equals(child.getLocalName())) {
-                limit = parsePeriod(child, true);
-            } else if (ELEMENT_CALDAV_LIMIT_FREEBUSY_SET.
-                       equals(child.getLocalName())) {
-                limitfb = parsePeriod(child, true);
-            } else {
-                LOG.warn("Ignoring child {} of {}", child.getTagName(), cdata.getTagName());
+    private static OutputFilter handleChildElement(OutputFilter result, Element child) throws CosmoDavException {
+        if (ELEMENT_CALDAV_COMP.equals(child.getLocalName())) {
+            if (result != null) {
+                return null;
             }
+
+            String name = DomUtil.getAttribute(child, ATTR_CALDAV_NAME, null);
+            if (name == null || !Calendar.VCALENDAR.equals(name)) {
+                return null;
+            }
+
+            result = parseCalendarDataComp(child);
+        } else {
+            LOG.warn("Ignoring child {} of {}", child.getTagName(), child.getParentNode().getNodeName());
         }
+        return result;
+    }
+
+    private static Period updateExpandPeriod(Period expand, Element child) throws CosmoDavException {
+        if (ELEMENT_CALDAV_EXPAND.equals(child.getLocalName())) {
+            expand = parsePeriod(child, true);
+        }
+        return expand;
+    }
+
+    private static Period updateLimitRecurrenceSet(Period limit, Element child) throws CosmoDavException {
+        if (ELEMENT_CALDAV_LIMIT_RECURRENCE_SET.equals(child.getLocalName())) {
+            limit = parsePeriod(child, true);
+        }
+        return limit;
+    }
+
+    private static Period updateLimitFreebusySet(Period limitfb, Element child) throws CosmoDavException {
+        if (ELEMENT_CALDAV_LIMIT_FREEBUSY_SET.equals(child.getLocalName())) {
+            limitfb = parsePeriod(child, true);
+        }
+        return limitfb;
+    }
 
         // Now add any limit/expand options, creating a filter if one is not
         // already present
-        if (result == null
-                && (expand != null || limit != null || limitfb != null)) {
-            result = new OutputFilter("VCALENDAR");
-            result.setAllSubComponents();
-            result.setAllProperties();
-        }
-        if (expand != null) {
-            result.setExpand(expand);
-        }
-        if (limit != null) {
-            result.setLimit(limit);
-        }
-        if (limitfb != null) {
-            result.setLimitfb(limitfb);
-        }
-
-        return result;
-    }
 
     // private methods
 
