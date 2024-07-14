@@ -1,43 +1,31 @@
 package org.unitedinternet.cosmo.hibernate.validator;
 
-import java.util.Arrays;
-import java.util.List;
-
 import jakarta.annotation.PostConstruct;
-
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Collection;
 
 @Component
 public class ValidationConfig {
 
-    @Value("${cosmo.event.validation.summary.min.length}")
-    private int summaryMinLength;
+    @Autowired
+    private SummaryValidationConfig summaryConfig;
 
-    @Value("${cosmo.event.validation.summary.max.length}")
-    private int summaryMaxLength;
+    @Autowired
+    private LocationValidationConfig locationConfig;
 
-    @Value("${cosmo.event.validation.location.min.length}")
-    private int locationMinLength;
+    @Autowired
+    private DescriptionValidationConfig descriptionConfig;
 
-    @Value("${cosmo.event.validation.location.max.length}")
-    private int locationMaxLength;
+    @Autowired
+    private AttendeesValidationConfig attendeesConfig;
 
-    @Value("${cosmo.event.validation.description.min.length}")
-    private int descriptionMinLength;
+    @Autowired
+    private RecurrenceValidationConfig recurrenceConfig;
 
-    @Value("${cosmo.event.validation.description.max.length}")
-    private int descriptionMaxLength;
-
-    @Value("${cosmo.event.validation.attendees.max.length}")
-    private int attendeesMaxSize;
-
-    @Value("${cosmo.event.validation.allowed.recurrence.frequencies}")
-    private String[] allowedRecurrenceFrequencies;
-    
-    @Value("${cosmo.event.validation.icaldata.max.length}")
-    private int icaldataMaxLength;
-
+    @Autowired
+    private IcalDataValidationConfig icaldataConfig;
 
     /**
      * Default constructor.
@@ -51,39 +39,63 @@ public class ValidationConfig {
         EventValidator.setValidationConfig(this);
     }
 
-    public int getSummaryMinLength() {
-        return summaryMinLength;
+    public SummaryValidationConfig getSummaryConfig() {
+        return summaryConfig;
     }
 
-    public int getSummaryMaxLength() {
-        return summaryMaxLength;
+    public LocationValidationConfig getLocationConfig() {
+        return locationConfig;
     }
 
-    public int getLocationMinLength() {
-        return locationMinLength;
+    public DescriptionValidationConfig getDescriptionConfig() {
+        return descriptionConfig;
     }
 
-    public int getLocationMaxLength() {
-        return locationMaxLength;
+    public AttendeesValidationConfig getAttendeesConfig() {
+        return attendeesConfig;
     }
 
-    public int getDescriptionMinLength() {
-        return descriptionMinLength;
+    public RecurrenceValidationConfig getRecurrenceConfig() {
+        return recurrenceConfig;
     }
 
-    public int getDescriptionMaxLength() {
-        return descriptionMaxLength;
+    public IcalDataValidationConfig getIcaldataConfig() {
+        return icaldataConfig;
+    }
+
+    public int getIcaldataMaxLength() {
+        return 0;
+    }
+
+    public Collection<Object> getAllowedRecurrenceFrequencies() {
+        return null;
     }
 
     public int getAttendeesMaxSize() {
-        return attendeesMaxSize;
+        return 0;
     }
 
-    public List<String> getAllowedRecurrenceFrequencies() {
-        return Arrays.asList(this.allowedRecurrenceFrequencies);
+    public int getDescriptionMinLength() {
+        return 0;
     }
-    
-    public int getIcaldataMaxLength() {
-        return icaldataMaxLength;
+
+    public int getDescriptionMaxLength() {
+        return 0;
+    }
+
+    public int getLocationMinLength() {
+        return 0;
+    }
+
+    public int getLocationMaxLength() {
+        return 0;
+    }
+
+    public int getSummaryMinLength() {
+        return 0;
+    }
+
+    public int getSummaryMaxLength() {
+        return 0;
     }
 }

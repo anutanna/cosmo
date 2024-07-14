@@ -34,10 +34,10 @@ import org.w3c.dom.Document;
 public class PrincipalUrl extends StandardDavProperty
     implements AclConstants {
 
-    public PrincipalUrl(DavResourceLocator locator,
-                        User user) {
+    public PrincipalUrl(DavResourceLocator locator, User user) {
         super(PRINCIPALURL, href(locator, user), true);
     }
+
 
     public String getHref() {
         return (String) getValue();
